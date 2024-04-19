@@ -1,30 +1,32 @@
 import httpx
 from pytest_httpx import HTTPXMock
 
-from pytainer.pytainer import Pytainer
+from pytainer.pytainer import (
+    Pytainer,
+    AuthAuthenticatePayload,
+    AuthAuthenticateResponse,
+)
+
 
 def test_portainer_init():
-    portainer = Pytainer(base_url="https://portainer.test", api_token="ASDASDASDASDASD")
-    assert portainer.base_url == "https://portainer.test"
+    portainer = Pytainer(base_url="https://portainer.test/", api_token="ASDASDASDASDASD")
+    assert portainer.base_url == "https://portainer.test/"
     assert portainer.headers == {}
     assert portainer.api_token == "ASDASDASDASDASD"
     assert isinstance(portainer.requester, httpx.Client)
 
 
-def test_get_stacks(httpx_mock: HTTPXMock):
-    httpx_mock.add_response(url="https://portainer.test/stacks", json={"resp": "test"})
-    portainer = Pytainer(base_url="https://portainer.test")
+def test_portainer_auth(httpx_mock: HTTPXMock):
+    jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOjEsImV4cCI6MTQ5OTM3NjE1NH0.NJ6vE8FY1WG6jsRQzfMqeatJ4vh2TWAeeYfDhP71YEE"
+    httpx_mock.add_response(
+        method="POST",
+        url="https://portainer.test/api/auth",
+        json=AuthAuthenticateResponse(jwt=jwt).model_dump(),
+    )
+    portainer = Pytainer(base_url="https://portainer.test", api_token="asd")
 
     with httpx.Client() as client:
-        resp = portainer.stack.get()
-        assert resp == {"resp": "test"}
-
-def test_auth(httpx_mock: HTTPXMock):
-    login = "test-login"
-    httpx_mock.add_response(url="https://portainer.test/auth", json={"jwt": login})
-    portainer = Pytainer(base_url="https://portainer.test")
-
-    with httpx.Client() as client:
-        resp = portainer.auth(login)
-        assert portainer._api_token == login
-        assert resp == {"jwt": login}
+        resp = portainer.auth.auth(username="test-login", password="test-password")
+        assert portainer.api_token == jwt
+        assert isinstance(resp, AuthAuthenticateResponse)
+        assert resp.jwt == jwt

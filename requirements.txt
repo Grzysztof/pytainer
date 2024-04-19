@@ -1,1 +1,4 @@
 pytest-httpx
+ruff
+pytest-asyncio
+pydantic
