@@ -29,6 +29,20 @@ class SystemInfoResponse(BaseModel):
     edgeAgents: int
     platform: str
 
+class SystemBuildInfo(BaseModel):
+    buildNumber: str
+    goVersion: str
+    imageTag: str
+    nodejsVersion: str
+    webpackVarsion: str
+    yarnVersion: str
+
+class SystemVersionResponse(BaseModel):
+    latestVersion: str
+    UpdateAvailable: bool
+    build: SystemBuildInfo
+    databaseVersion: str
+    serverVersion: str
 
 class Pytainer:
     _base_url: str
@@ -233,7 +247,13 @@ class System(APIResource):
         info_resp = SystemInfoResponse.model_validate(info_req.json())
         return info_resp
 
-
+    def version(self) -> SystemVersionResponse:
+        resource_path = "api/system/version"
+        request_url = urljoin(self.client.base_url, resource_path)
+        version_req = self.client.make_request(HttpMethod.GET, request_url)
+        version_resp = SystemInfoResponse.model_validate(version_req.json())
+        return version_resp
+    
 class Tags(APIResource):
     pass
 
