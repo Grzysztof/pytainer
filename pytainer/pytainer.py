@@ -23,6 +23,10 @@ class AuthAuthenticatePayload(BaseModel):
 class AuthAuthenticateResponse(BaseModel):
     jwt: str
 
+class SystemInfoResponse(BaseModel):
+    agents: int
+    edgeAgents: int
+    platform: str
 
 class Pytainer:
     _base_url: str
@@ -42,15 +46,16 @@ class Pytainer:
         else:
             self.base_url = base_url
         if not api_token:
-            self._api_token =os.getenv("PORTAINER_API_TOKEN")
+            self.api_token =os.getenv("PORTAINER_API_TOKEN")
         else:
-            self._api_token = api_token
+            self.api_token = api_token
 
         self._headers = {}
         self._requester = httpx.Client()
 
         self.stack = Stacks(self)
         self.auth = Auth(self)
+        self.system = System(self)
 
     @property
     def headers(self) -> dict:
@@ -83,7 +88,10 @@ class Pytainer:
     def make_request(
         self, method: HttpMethod, url: str, data: BaseModel | None = None
     ) -> httpx.Response:
-        return self._requester.request(method, url, data=data.model_dump())
+        self.headers["X-API-Key"] = f"{self.api_token}"
+        if data:
+            data = data.model_dump()
+        return self._requester.request(method, url, data=data, headers=self.headers)
 
 
 class APIResource:
@@ -104,10 +112,10 @@ class Auth(APIResource):
             username = os.getenv("PORTAINER_USERNAME")
         if not password:
             password = os.getenv("PORTAINER_PASSWORD")
-        payload = AuthAuthenticatePayload(username=username, password=password)
+        data = AuthAuthenticatePayload(username=username, password=password)
         
         auth_req = self.client.make_request(
-            HttpMethod.POST, urljoin(self.client.base_url, self._resource_path), payload
+            HttpMethod.POST, urljoin(self.client.base_url, self._resource_path), data=data
         )
         auth_resp = AuthAuthenticateResponse.model_validate(auth_req.json())
         self.client.api_token = auth_resp.jwt
@@ -196,15 +204,11 @@ class Ssl(APIResource):
 class Stacks(APIResource):
     _base_path = "/stacks"
     _client: Pytainer
-    _test: int = 0
 
     def get(self) -> dict:
-        self._test += 1
-        self.client._headers["Test"] = f"{self._test}"
         test = self.client.make_request(
             "GET", urljoin(self.client._base_url, self._base_path)
         )
-        print(self.client._headers)
         return test.json()
 
     pass
@@ -215,7 +219,16 @@ class Status(APIResource):
 
 
 class System(APIResource):
-    pass
+
+    def info(self) -> SystemInfoResponse:
+        resource_path = 'api/system/info'
+        request_url = urljoin(self.client.base_url, resource_path)
+        info_req = self.client.make_request(
+            HttpMethod.GET, 
+            request_url
+        )
+        info_resp = SystemInfoResponse.model_validate(info_req.json())
+        return info_resp
 
 
 class Tags(APIResource):
