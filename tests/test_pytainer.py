@@ -1,8 +1,14 @@
-import pytest
 import httpx
 from pytest_httpx import HTTPXMock
 
 from pytainer.pytainer import Pytainer
+
+def test_portainer_init():
+    portainer = Pytainer(base_url="https://portainer.test", api_token="ASDASDASDASDASD")
+    assert portainer.base_url == "https://portainer.test"
+    assert portainer.headers == {}
+    assert portainer.api_token == "ASDASDASDASDASD"
+    assert isinstance(portainer.requester, httpx.Client)
 
 
 def test_get_stacks(httpx_mock: HTTPXMock):
