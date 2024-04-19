@@ -23,10 +23,12 @@ class AuthAuthenticatePayload(BaseModel):
 class AuthAuthenticateResponse(BaseModel):
     jwt: str
 
+
 class SystemInfoResponse(BaseModel):
     agents: int
     edgeAgents: int
     platform: str
+
 
 class Pytainer:
     _base_url: str
@@ -42,11 +44,11 @@ class Pytainer:
         password: str | None = None,
     ) -> None:
         if not base_url:
-            self.base_url =  os.getenv("PORTAINER_URL")
+            self.base_url = os.getenv("PORTAINER_URL")
         else:
             self.base_url = base_url
         if not api_token:
-            self.api_token =os.getenv("PORTAINER_API_TOKEN")
+            self.api_token = os.getenv("PORTAINER_API_TOKEN")
         else:
             self.api_token = api_token
 
@@ -76,7 +78,7 @@ class Pytainer:
     @property
     def base_url(self) -> str:
         return self._base_url
-    
+
     @base_url.setter
     def base_url(self, url: str) -> None:
         self._base_url = url
@@ -106,20 +108,25 @@ class Auth(APIResource):
     _resource_path: str = "/api/auth"
 
     def auth(
-        self, username: str | None, password: str | None, 
+        self,
+        username: str | None,
+        password: str | None,
     ) -> AuthAuthenticateResponse:
         if not username:
             username = os.getenv("PORTAINER_USERNAME")
         if not password:
             password = os.getenv("PORTAINER_PASSWORD")
         data = AuthAuthenticatePayload(username=username, password=password)
-        
+
         auth_req = self.client.make_request(
-            HttpMethod.POST, urljoin(self.client.base_url, self._resource_path), data=data
+            HttpMethod.POST,
+            urljoin(self.client.base_url, self._resource_path),
+            data=data,
         )
         auth_resp = AuthAuthenticateResponse.model_validate(auth_req.json())
         self.client.api_token = auth_resp.jwt
         return auth_resp
+
 
 class Backup(APIResource):
     pass
@@ -219,14 +226,10 @@ class Status(APIResource):
 
 
 class System(APIResource):
-
     def info(self) -> SystemInfoResponse:
-        resource_path = 'api/system/info'
+        resource_path = "api/system/info"
         request_url = urljoin(self.client.base_url, resource_path)
-        info_req = self.client.make_request(
-            HttpMethod.GET, 
-            request_url
-        )
+        info_req = self.client.make_request(HttpMethod.GET, request_url)
         info_resp = SystemInfoResponse.model_validate(info_req.json())
         return info_resp
 
