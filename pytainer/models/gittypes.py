@@ -1,9 +1,11 @@
 from pydantic import BaseModel
 
+
 class GitAuthentication(BaseModel):
     gitCredentialID: int
     password: str
     username: str
+
 
 class RepoConfig(BaseModel):
     authentication: GitAuthentication

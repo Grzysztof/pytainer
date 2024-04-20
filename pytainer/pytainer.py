@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from enum import Enum
 from pytainer.models import portainer
 
+
 class HttpMethod(str, Enum):
     GET = "GET"
     POST = "POST"
@@ -225,7 +226,8 @@ class System(APIResource):
         version_req = self.client.make_request(HttpMethod.GET, request_url)
         version_resp = portainer.SystemInfoResponse.model_validate(version_req.json())
         return version_resp
-    
+
+
 class Tags(APIResource):
     pass
 

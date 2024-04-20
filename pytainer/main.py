@@ -16,6 +16,7 @@ def info():
     )
     print(portainer.system.info().model_dump())
 
+
 def version():
     portainer = Pytainer(
         base_url=os.getenv("PORTAINER_URL"), api_token=os.getenv("PORTAINER_API_TOKEN")
