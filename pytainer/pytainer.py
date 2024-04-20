@@ -44,6 +44,77 @@ class SystemVersionResponse(BaseModel):
     databaseVersion: str
     serverVersion: str
 
+class AutoUpdateSettings(BaseModel):
+    forcePullImage: bool
+    forceUpdate: bool
+    interval: int
+    jobID: str
+    webhook: str
+
+class StackOption(BaseModel):
+    prune: bool
+
+class TeamResourceAccess(BaseModel):
+    AccessLevel: int
+    TeamId: int
+
+class UserResourceAccess(BaseModel):
+    AccessLevel: int
+    UserId: int
+
+class ResourceControl(BaseModel):
+    AccessKevel: int
+    AdministratorsOnly: bool
+    Id: int
+    OwnerId: int
+    Public: bool
+    ResourceId: str
+    SubResourceIds: list[str]
+    System: bool
+    TeamAccesses: list[TeamResourceAccess]
+    Type: int
+    UserAccesses: list[UserResourceAccess]
+
+class GitAuthentication(BaseModel):
+    gitCredentialID: int
+    password: str
+    username: str
+
+class Pair(BaseModel):
+    name: str
+    value: str
+
+class RepoConfig(BaseModel): # Thats gittypes.RepoConfig
+    authentication: GitAuthentication
+    configFilePath: str
+    configHash: str
+    referenceName: str
+    tlsskipVerify: bool
+    url: str
+
+class Stack(BaseModel):
+    AdditionalFiles: list[str]
+    AutoUpdate: AutoUpdateSettings
+    EndpointID: int
+    EntryPoint: list[str]
+    Env: list[Pair]
+    Id: int
+    Name: str
+    Option: StackOption
+    ResourceControl: ResourceControl
+    Status: int
+    SwarmId: str
+    Type: int
+    createdBy: str
+    creationDate: int
+    fromAppTemplate: bool
+    gitConfig: RepoConfig
+    isComposeFormat: bool
+    namespace: str
+    projectPath: str
+    updateDate: int
+    updatedBy: str
+
 class Pytainer:
     _base_url: str
     _headers: dict
@@ -69,7 +140,7 @@ class Pytainer:
         self._headers = {}
         self._requester = httpx.Client()
 
-        self.stack = Stacks(self)
+        self.stacks = Stacks(self)
         self.auth = Auth(self)
         self.system = System(self)
 
@@ -223,10 +294,11 @@ class Ssl(APIResource):
 
 
 class Stacks(APIResource):
-    _base_path = "/stacks"
+    _base_path = "/api/stacks"
     _client: Pytainer
 
     def get(self) -> dict:
+        """List stacks"""
         test = self.client.make_request(
             "GET", urljoin(self.client._base_url, self._base_path)
         )
