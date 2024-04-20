@@ -1,8 +1,8 @@
 import httpx
 from pytest_httpx import HTTPXMock
 
-from pytainer.pytainer import Pytainer, AuthAuthenticateResponse, SystemInfoResponse
-
+from pytainer.pytainer import Pytainer
+from pytainer.models.portainer import AuthAuthenticateResponse, SystemInfoResponse
 
 def test_portainer_init():
     portainer = Pytainer(
