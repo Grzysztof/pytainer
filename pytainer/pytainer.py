@@ -2,8 +2,9 @@ import httpx
 import os
 from urllib.parse import urljoin
 from pydantic import BaseModel
+from typing import List
 from enum import Enum
-from pytainer.models import portainer
+from models import portainer
 
 
 class HttpMethod(str, Enum):
@@ -74,12 +75,21 @@ class Pytainer:
         return self._requester
 
     def make_request(
-        self, method: HttpMethod, url: str, data: BaseModel | None = None
+        self, method: HttpMethod, url: str, params: dict | None = None, data: BaseModel | None = None
     ) -> httpx.Response:
+        
         self.headers["X-API-Key"] = f"{self.api_token}"
+        
         if data:
-            data = data.model_dump()
-        return self._requester.request(method, url, data=data, headers=self.headers)
+            data = data.model_dump_json()
+
+        resp = self._requester.request(method, url, data=data, headers=self.headers, params=params)
+        print(resp.request)
+        print(resp.headers)
+        print(resp.request._content)
+        print(resp.status_code)
+        print(resp.json())
+        return resp
 
 
 class APIResource:
@@ -198,15 +208,39 @@ class Stacks(APIResource):
     _base_path = "/api/stacks"
     _client: Pytainer
 
-    def get(self) -> dict:
+    def list(self) -> List[portainer.Stack]:
         """List stacks"""
-        test = self.client.make_request(
+        req = self.client.make_request(
             "GET", urljoin(self.client._base_url, self._base_path)
         )
-        return test.json()
+        print(req.json())
+        return [portainer.Stack.model_validate(stack_item) for stack_item in req.json()]
 
-    pass
+    def update(self, stack_id: int, endpoint_id: int, data: portainer.UpdateSwarmStackPayload) -> dict:
+        """Update a stack"""
+        req = self.client.make_request(
+            "PUT",
+            urljoin(self.client._base_url, f"{self._base_path}/{stack_id}"),
+            params={"endpointId": endpoint_id},
+            data=data,
+        )
+        return portainer.Stack.model_validate(req.json())
 
+    def get(self, stack_id: int) -> portainer.Stack:
+        """Get a stack"""
+        req = self.client.make_request(
+            "GET",
+            urljoin(self.client._base_url, f"{self._base_path}/{stack_id}"),
+        )
+        return portainer.Stack.model_validate(req.json())
+
+    def get_file(self, stack_id: int) -> portainer.Stack:
+        """Get stack file"""
+        req = self.client.make_request(
+            "GET",
+            urljoin(self.client._base_url, f"{self._base_path}/{stack_id}/file"),
+        )
+        return portainer.StackFileResponse.model_validate(req.json())
 
 class Status(APIResource):
     pass

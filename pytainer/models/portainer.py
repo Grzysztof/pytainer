@@ -1,5 +1,6 @@
+from typing import List, Optional, Union
 from pydantic import BaseModel
-from pytainer.models import gittypes
+from models import gittypes
 
 
 class AuthAuthenticatePayload(BaseModel):
@@ -57,17 +58,17 @@ class UserResourceAccess(BaseModel):
 
 
 class ResourceControl(BaseModel):
-    AccessLevel: int
+    AccessLevel: Optional[int] = None
     AdministratorsOnly: bool
     Id: int
-    OwnerId: int
+    OwnerId: Optional[int] = None
     Public: bool
     ResourceId: str
-    SubResourceIds: list[str]
+    SubResourceIds: List[str]
     System: bool
-    TeamAccesses: list[TeamResourceAccess]
+    TeamAccesses: List[TeamResourceAccess]
     Type: int
-    UserAccesses: list[UserResourceAccess]
+    UserAccesses: List[UserResourceAccess]
 
 
 class Pair(BaseModel):
@@ -76,24 +77,33 @@ class Pair(BaseModel):
 
 
 class Stack(BaseModel):
-    AdditionalFiles: list[str]
-    AutoUpdate: AutoUpdateSettings
-    EndpointID: int
-    EntryPoint: list[str]
-    Env: list[Pair]
+    AdditionalFiles: Optional[List[str]]
+    AutoUpdate: Optional[AutoUpdateSettings]
+    EndpointId: int
+    EntryPoint: Union[List[str], str]
+    Env: List[Pair]
     Id: int
     Name: str
-    Option: StackOption
-    ResourceControl: ResourceControl
+    Option: StackOption | None
+    ResourceControl: ResourceControl | None
     Status: int
     SwarmId: str
     Type: int
-    createdBy: str
-    creationDate: int
-    fromAppTemplate: bool
-    gitConfig: gittypes.RepoConfig
-    isComposeFormat: bool
-    namespace: str
-    projectPath: str
-    updateDate: int
-    updatedBy: str
+    CreatedBy: Optional[str]
+    CreationDate: Optional[int]
+    FromAppTemplate: Optional[bool]
+    GitConfig: Optional[gittypes.RepoConfig]
+    IsComposeFormat: bool
+    Namespace: str
+    ProjectPath: str
+    UpdateDate: int
+    UpdatedBy: str
+
+class UpdateSwarmStackPayload(BaseModel):
+    env: List[Pair]
+    prune: bool = False
+    pullImage: bool = False
+    stackFileContent: str
+
+class StackFileResponse(BaseModel):
+    StackFileContent: str
