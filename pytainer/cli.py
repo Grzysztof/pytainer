@@ -41,7 +41,7 @@ def get_stack(
 
 @stack_app.command("update")
 def update_stack(
-    stack_id: Annotated[int, typer.Argument()],
+    stack_id: Annotated[int, typer.Argument(...)],
     env: Annotated[Optional[List[str]], typer.Option()] = None,
     prune: Annotated[bool, typer.Option("--prune")] = False,
     pull_image: Annotated[bool, typer.Option("--pull")] = False,
