@@ -4,6 +4,7 @@ from pytest_httpx import HTTPXMock
 from pytainer.pytainer import Pytainer
 from pytainer.models.portainer import AuthAuthenticateResponse, SystemInfoResponse
 
+
 def test_portainer_init():
     portainer = Pytainer(
         base_url="https://portainer.test/", api_token="debug-auth-token"

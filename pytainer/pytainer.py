@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 from pydantic import BaseModel
 from typing import List
 from enum import Enum
-from models import portainer
+from pytainer.models import portainer
 
 
 class HttpMethod(str, Enum):

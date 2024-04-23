@@ -2,7 +2,7 @@ import typer
 import os
 from typing import Annotated, List, Optional
 from pytainer import Pytainer
-from models.portainer import UpdateSwarmStackPayload, Pair
+from pytainer.models.portainer import UpdateSwarmStackPayload, Pair
 from rich import print
 
 app = typer.Typer()
@@ -78,5 +78,9 @@ def update_stack(
         return response
 
 
-if __name__ == "__main__":
+def main():
     app()
+
+
+if __name__ == "__main__":
+    main()

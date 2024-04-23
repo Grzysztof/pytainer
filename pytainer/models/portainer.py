@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 from pydantic import BaseModel
-from models import gittypes
+from pytainer.models import gittypes
 
 
 class AuthAuthenticatePayload(BaseModel):
