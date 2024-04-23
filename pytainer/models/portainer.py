@@ -99,11 +99,13 @@ class Stack(BaseModel):
     UpdateDate: int
     UpdatedBy: str
 
+
 class UpdateSwarmStackPayload(BaseModel):
     env: List[Pair]
     prune: bool = False
     pullImage: bool = False
     stackFileContent: str
+
 
 class StackFileResponse(BaseModel):
     StackFileContent: str

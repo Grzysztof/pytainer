@@ -75,21 +75,20 @@ class Pytainer:
         return self._requester
 
     def make_request(
-        self, method: HttpMethod, url: str, params: dict | None = None, data: BaseModel | None = None
+        self,
+        method: HttpMethod,
+        url: str,
+        params: dict | None = None,
+        data: BaseModel | None = None,
     ) -> httpx.Response:
-        
         self.headers["X-API-Key"] = f"{self.api_token}"
-        
+
         if data:
             data = data.model_dump_json()
 
-        resp = self._requester.request(method, url, data=data, headers=self.headers, params=params)
-        print(resp.request)
-        print(resp.headers)
-        print(resp.request._content)
-        print(resp.status_code)
-        print(resp.json())
-        return resp
+        return self._requester.request(
+            method, url, data=data, headers=self.headers, params=params
+        )
 
 
 class APIResource:
@@ -216,7 +215,9 @@ class Stacks(APIResource):
         print(req.json())
         return [portainer.Stack.model_validate(stack_item) for stack_item in req.json()]
 
-    def update(self, stack_id: int, endpoint_id: int, data: portainer.UpdateSwarmStackPayload) -> dict:
+    def update(
+        self, stack_id: int, endpoint_id: int, data: portainer.UpdateSwarmStackPayload
+    ) -> dict:
         """Update a stack"""
         req = self.client.make_request(
             "PUT",
@@ -241,6 +242,7 @@ class Stacks(APIResource):
             urljoin(self.client._base_url, f"{self._base_path}/{stack_id}/file"),
         )
         return portainer.StackFileResponse.model_validate(req.json())
+
 
 class Status(APIResource):
     pass
