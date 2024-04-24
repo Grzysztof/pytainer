@@ -6,15 +6,13 @@ from pytainer.models.portainer import UpdateSwarmStackPayload, Pair
 from rich import print
 
 app = typer.Typer()
-system_app = typer.Typer()
-stack_app = typer.Typer()
+system_app = typer.Typer(help="System commands")
+stacks_app = typer.Typer(help="Stacks control commands")
 
 app.add_typer(system_app, name="system")
-app.add_typer(stack_app, name="stack")
+app.add_typer(stacks_app, name="stacks")
 
-client = Pytainer(
-    base_url=os.getenv("PORTAINER_URL"), api_token=os.getenv("PORTAINER_API_TOKEN")
-)
+client = Pytainer()
 
 
 @system_app.command("info")
@@ -27,22 +25,22 @@ def version():
     print(client.system.version())
 
 
-@stack_app.command("list")
+@stacks_app.command("list")
 def list_stack():
     print(client.stacks.list())
 
 
-@stack_app.command("get")
+@stacks_app.command("get")
 def get_stack(
     stack_id: Annotated[int, typer.Argument(...)],
 ):
     print(client.stacks.get(stack_id=stack_id))
 
 
-@stack_app.command("update")
+@stacks_app.command("update")
 def update_stack(
     stack_id: Annotated[int, typer.Argument(...)],
-    env: Annotated[Optional[List[str]], typer.Option()] = None,
+    env: Annotated[Optional[List[str]], typer.Option("--env")] = None,
     prune: Annotated[bool, typer.Option("--prune")] = False,
     pull_image: Annotated[bool, typer.Option("--pull")] = False,
 ):
@@ -76,6 +74,27 @@ def update_stack(
             stack_id=stack_id, endpoint_id=current_stack.EndpointId, data=data
         )
         return response
+
+@stacks_app.command("start")
+def satrt_stack(
+    stack_id: Annotated[int, typer.Argument(...)],
+    endpoint_id: Annotated[int, typer.Option("--endpoint")] = None,
+):  
+    if not endpoint_id:
+        endpoint_id = client.stacks.get(stack_id=stack_id).EndpointId
+    response = client.stacks.start(stack_id=stack_id, endpoint_id=endpoint_id)    
+    return response
+
+@stacks_app.command("stop")
+def satrt_stack(
+    stack_id: Annotated[int, typer.Argument(...)],
+    endpoint_id: Annotated[int, typer.Option("--endpoint")] = None,
+):  
+    if not endpoint_id:
+        endpoint_id = client.stacks.get(stack_id=stack_id).EndpointId
+
+    response = client.stacks.stop(stack_id=stack_id, endpoint_id=endpoint_id)    
+    return response
 
 
 def main():

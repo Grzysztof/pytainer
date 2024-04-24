@@ -3,6 +3,11 @@ from pydantic import BaseModel
 from pytainer.models import gittypes
 
 
+class ErrorResponse(BaseModel):
+    message: str | None
+    details: str | None
+
+
 class AuthAuthenticatePayload(BaseModel):
     username: str
     password: str
@@ -19,20 +24,20 @@ class SystemInfoResponse(BaseModel):
 
 
 class SystemBuildInfo(BaseModel):
-    buildNumber: str
-    goVersion: str
-    imageTag: str
-    nodejsVersion: str
-    webpackVarsion: str
-    yarnVersion: str
+    BuildNumber: Optional[str]
+    GoVersion: Optional[str]
+    ImageTag: Optional[str]
+    NodejsVersion: Optional[str]
+    WebpackVersion: Optional[str]
+    YarnVersion: Optional[str]
 
 
 class SystemVersionResponse(BaseModel):
-    latestVersion: str
-    UpdateAvailable: bool
-    build: SystemBuildInfo
-    databaseVersion: str
-    serverVersion: str
+    LatestVersion: Optional[str]
+    UpdateAvailable: Optional[bool]
+    Build: Optional[SystemBuildInfo]
+    DatabaseVersion: Optional[str]
+    ServerVersion: Optional[str]
 
 
 class AutoUpdateSettings(BaseModel):
