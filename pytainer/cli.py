@@ -2,7 +2,7 @@ import typer
 import os
 from typing import Annotated, List, Optional
 from pytainer import Pytainer
-from pytainer.models.portainer import UpdateSwarmStackPayload, Pair
+from pytainer.models.portainer import UpdateSwarmStackPayload, Pair, StackFileResponse
 from rich import print
 
 app = typer.Typer()
